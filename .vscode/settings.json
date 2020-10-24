@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.pl": "prolog",
+        "*.ss": "scheme",
+        "cstddef": "cpp",
+        "functional": "cpp"
+    }
+}
