@@ -9,7 +9,8 @@
                 "${file}",
                 "${fileDirname}/crc.cpp",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "-pthread"
             ],
             "options": {
                 "cwd": "/usr/bin"

@@ -9,28 +9,38 @@
 
 #include <iostream>
 #include <sstream>
+#define BUFSIZE 1024
+#define CRCSIZE 8
 
-int
-main()
+int main(int argc, char *argv[])
 {
-  // create a socket using TCP IP
-  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-  // struct sockaddr_in addr;
-  // addr.sin_family = AF_INET;
-  // addr.sin_port = htons(40001);     // short, network byte order
-  // addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-  // memset(addr.sin_zero, '\0', sizeof(addr.sin_zero));
-  // if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
-  //   perror("bind");
-  //   return 1;
-  // }
-
+  int sockfd, portno;
   struct sockaddr_in serverAddr;
+  char *hostname = argv[1];
+  char *filename = argv[3];
+  portno = (u_int16_t)argv[2];
+  
+
+  if(argc != 4){
+    fprintf(stderr, "ERROR: Invalid arguments");
+    exit(2);
+  }
+
+  if (portno < 1023){ //Make sure portno is in valid range
+    fprintf(stderr, "ERROR: Invalid Port Number %s\n", argv[1]);
+    exit(2);
+  }
+  // create a socket using TCP IP
+  if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+  {
+    perror("failed socket fd");
+    exit(1);
+  }
+
+  
   serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(40000);     // short, network byte order
-  serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-  memset(serverAddr.sin_zero, '\0', sizeof(serverAddr.sin_zero));
+  serverAddr.sin_port = htons(portno);     // short, network byte order
+  serverAddr.sin_addr.s_addr = inet_addr(hostname);
 
   // connect to the server
   if (connect(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1) {
