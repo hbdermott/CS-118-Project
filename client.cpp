@@ -16,14 +16,13 @@
 #include <errno.h>
 #include <signal.h>
 #include <fcntl.h>
-#include "crc.h"
+#include "CRC.h"
 
 int main(int argc, char *argv[])
 {
   int sockfd, portno;
-  struct sockaddr_in serverAddr;
-  struct sockaddr_in clientAddr;
-  socklen_t clientAddrLen = sizeof(clientAddr);
+  // struct sockaddr_in clientAddr;
+  // socklen_t clientAddrLen = sizeof(clientAddr);
   struct addrinfo hints = {0}, *addrs;
   struct timeval timeout;
   fd_set set;
@@ -44,12 +43,8 @@ int main(int argc, char *argv[])
     exit(2);
   }
 
-  // memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_INET; // AF_INET or AF_INET6 to force version
   hints.ai_socktype = SOCK_STREAM;
-  // serverAddr.sin_family = AF_INET;
-  // serverAddr.sin_port = htons(portno); // short, network byte order
-  // serverAddr.sin_addr.s_addr = inet_addr(hostname);
 
   if (getaddrinfo(hostname, argv[2], &hints, &addrs) < 0){
     fprintf(stderr, "ERROR: Invalid hostname/port: %s\t%s\n", argv[1], argv[2]);
@@ -67,7 +62,8 @@ int main(int argc, char *argv[])
 
   // connect to the server
   connect(sockfd, addr->ai_addr, addr->ai_addrlen);
-
+// https: //stackoverflow.com/questions/2597608/c-socket-connection-timeout
+// This source was referenced to figure out the client timeout for the server connection
   timeout.tv_sec = 10;
   timeout.tv_usec = 0;
   FD_ZERO(&set);

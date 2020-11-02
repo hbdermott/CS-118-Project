@@ -1,4 +1,4 @@
-#include "crc.h"
+#include "CRC.h"
 
 //I would just like to note that i referenced the following site
 //to learn more about CRC. I initially read it before even starting
