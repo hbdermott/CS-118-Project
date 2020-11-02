@@ -22,18 +22,12 @@
 std::string directory;
 CRC validator;
 
-struct thread_data {
-    int tid;
-    int clientfd;
-};
-
 void sighandler(int i){
   std::cout << "SIGQUIT | SIGTERM received" << std::endl;
   exit(0);
 }
 
-void* service_client(void * args){
-    struct thread_data *data = (struct thread_data *)args;
+void service_client(int tid, int clientfd){
     struct timeval timeout;
     fd_set set;
     char buf[1024];
@@ -42,12 +36,12 @@ void* service_client(void * args){
 
     timeout.tv_sec = 10;
     timeout.tv_usec = 0;
-    std::string filename = directory + "/" + std::to_string(data->tid) + ".file";
+    std::string filename = directory + "/" + std::to_string(tid) + ".file";
     file.open(filename);
 
     while(true){
       FD_ZERO(&set);
-      FD_SET(data->clientfd, &set);
+      FD_SET(clientfd, &set);
 
       int ret = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
 
@@ -55,27 +49,27 @@ void* service_client(void * args){
         case 0:
           file << "ERROR: Client Timeout";
           file.close();
-          close(data->clientfd);
-          return data;
+          close(clientfd);
+          return;
           break;
         case -1:
           file << "ERROR: Select error";
           file.close();
-          close(data->clientfd);
-          return data;
+          close(clientfd);
+          return;
           break;
         default:
-          size = read(data->clientfd, &buf, 1024);
+          size = read(clientfd, &buf, 1024);
           if(size < 0){
             file << "ERROR: Read from file";
             file.close();
-            close(data->clientfd);
-            return data;
+            close(clientfd);
+            return;
           }
           else if(size == 0){
             file.close();
-            close(data->clientfd);
-            return data;
+            close(clientfd);
+            return;
           }
           else if (validator.get_crc_code((u_int8_t *)&buf, size) == 0){
             file.write(buf, size - 8);
@@ -83,14 +77,14 @@ void* service_client(void * args){
           else{
             file << "ERROR: CRC Verification";
             file.close();
-            close(data->clientfd);
-            return data;
+            close(clientfd);
+            return;
           }
       }
     }
     file.close();
-    close(data->clientfd);
-    return data;
+    close(clientfd);
+    return;
 }
 
 int main(int argc, char *argv[])
@@ -98,7 +92,7 @@ int main(int argc, char *argv[])
   int listenfd, portno;
   int yes = 1;
   int thread_count = 1;
-  pthread_t clientThreads[MAXCLIENTS];
+  std::thread threads[MAXCLIENTS];
   struct sockaddr_in addr;
 
   signal(SIGQUIT, sighandler);
@@ -154,12 +148,8 @@ int main(int argc, char *argv[])
       perror("accept");
       exit(4);
     }
-    struct thread_data data;
-    data.tid = thread_count;
-    data.clientfd = newfd;
-    std::thread thr(service_client, data);    
-    // pthread_create(&clientThreads[thread_count - 1], NULL, service_client, (void*)&data);
-    // pthread_join(clientThreads[thread_count-1], NULL);
+
+    threads[thread_count - 1] = std::thread(service_client, thread_count, newfd);    
 
     thread_count++;
   }

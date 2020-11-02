@@ -11,14 +11,13 @@
 
 // http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
 
-CRC64::CRC64(){
-    table = new uint64_t [256];
+CRC::CRC(){
     for(int i = 0; i < 256; i++){
         uint64_t byte = ((uint64_t)(i) << 56);
         for(uint8_t bit = 0; bit < 8; bit++){
             if((byte & 0x8000000000000000) != 0){
                 byte <<= 1;
-                byte ^= m_poly;
+                byte ^= m_polynomial;
             }
             else
                 byte <<= 1;
@@ -27,7 +26,7 @@ CRC64::CRC64(){
     }
 }
 
-uint64_t CRC64::getCRC(uint8_t *bytes, int size){
+uint64_t CRC::get_crc_code(uint8_t *bytes, int size){
     uint64_t crc = 0;
     for(int i = 0; i < size; i++){
         uint8_t byte = (uint8_t)bytes[i];
