@@ -1,5 +1,28 @@
 # CS-118-Project
 A socket based client/server project to practice CRC encoding/decoding+
+Hunter Dermott 404982180
+
+
+LIBRARIES
+#include <stdio.h>
+#include <string>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <sys/time.h>
+#include <sys/select.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <errno.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <thread>
 
 server.cpp:
   ./server <PORT-NO> <DIR-NAME>
@@ -35,3 +58,11 @@ crc.cpp:
   stream.
 
   I did not really have many problems in the implementation of this code.
+
+
+Awknowledgements:
+CRC: http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
+
+Network programming: https://beej.us/guide/bgnet/pdf/bgnet_usl_c_1.pdf
+
+Client Select Timeout: https://stackoverflow.com/questions/2597608/c-socket-connection-timeout
